@@ -1,0 +1,23 @@
+[project]
+name = "frutishop"
+version = "0.0.1"
+description = "Shop Fruit"
+authors = [
+    {name = "Dmitriy",email = "ViatkinDima@gmail.com"}
+]
+requires-python = "3.12.3"
+dependencies = [
+    "django (>=5.0.1,<6.0.0)",
+    "celery (>=5.6.3,<6.0.0)",
+    "redis (>=7.4.0,<8.0.0)",
+    "django-ninja (>=1.6.2,<2.0.0)",
+    "channels (>=4.3.2,<5.0.0)",
+    "channels-redis (>=4.3.0,<5.0.0)",
+    "django-celery-beat (>=2.9.0,<3.0.0)",
+    "env (>=0.1.0,<0.2.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
