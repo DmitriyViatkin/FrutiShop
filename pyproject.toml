@@ -2,6 +2,7 @@
 name = "frutishop"
 version = "0.0.1"
 description = "Shop Fruit"
+package-mode = false
 authors = [
     {name = "Dmitriy",email = "ViatkinDima@gmail.com"}
 ]
@@ -14,7 +15,8 @@ dependencies = [
     "channels (>=4.3.2,<5.0.0)",
     "channels-redis (>=4.3.0,<5.0.0)",
     "django-celery-beat (>=2.9.0,<3.0.0)",
-    "env (>=0.1.0,<0.2.0)"
+    "env (>=0.1.0,<0.2.0)",
+    "python-dotenv (>=1.2.2,<2.0.0)"
 ]
 
 
