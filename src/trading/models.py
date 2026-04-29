@@ -47,7 +47,7 @@ class Account(models.Model):
         return f'Balance: ${self.balance}'
 
 
-class Transaction(models.Model):
+class OrderTransaction(models.Model):
     """
     Records all buy/sell transactions (successful and failed).
 
