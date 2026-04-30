@@ -2,7 +2,7 @@ import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 
 class FruitsConsumer(AsyncWebsocketConsumer):
-     GROUP = 'fruits_log'
+     GROUP = 'fruits_trading'
 
      async def connect(self):
          await self.channel_layer.group_add( self.GROUP, self.channel_name )
@@ -12,13 +12,12 @@ class FruitsConsumer(AsyncWebsocketConsumer):
              "Balance": None
          })
          )
-     async def disconect (self, code):
+     async def disconnect (self, code):
          await self.channel_layer.group_discard( self.GROUP, self.channel_name )
 
      async def fruits_log(self, event):
-         message = event['message']
-         balance = event['balance']
+
          await self.send(text_data=json.dumps({
-             "message": message,
-             "Balance": balance
+             "message": event['message'],
+             "Balance": event.get['balance']
          }))
