@@ -1,4 +1,5 @@
 import random
+from django.utils import timezone
 import logging
 from decimal import Decimal
 from celery import shared_task
@@ -33,9 +34,9 @@ def _buy(fruit:str, manual_qty = None):
     logger.info(f"BUY attempt: {fruit.upper()} x{qty} @ ${buy_price} = ${cost}")
     with transaction.atomic():
         account = Account.objects.select_for_update().get(pk=2)
-
+        now = timezone.now().strftime("%H:%M")
         if account.balance < cost:
-            msg = (f" BUY {fruit.upper()} x{qty} "
+            msg = (f" {now} - BUY {fruit.upper()} x{qty} "
                    f"— недостатньо коштів (потрібно ${cost}, є ${account.balance})")
             logger.warning(msg)
             OrderTransaction.objects.create(
@@ -44,13 +45,14 @@ def _buy(fruit:str, manual_qty = None):
             )
             send_ws(msg, balance=account.balance)
             return msg
+
         account.balance -= cost
         account.save()
         inventory, _ = Inventory.objects.get_or_create(fruit=fruit, defaults={'quantity': 0})
         inventory.quantity += qty
         inventory.save()
 
-    msg = f"BUY {fruit.upper()} x{qty} @ ${buy_price} = ${cost} | баланс: ${account.balance}"
+    msg = f"{now} - BUY {fruit.upper()} x{qty} @ ${buy_price} = ${cost} | баланс: ${account.balance}"
     logger.info(msg)
     OrderTransaction.objects.create(
         transaction_type='BUY', fruit=fruit, quantity=qty,

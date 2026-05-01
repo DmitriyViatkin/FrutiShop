@@ -517,7 +517,7 @@
       <div class="panel-title">Банк</div>
       <div class="bank-body">
         <div class="bank-label">Банковский счёт:</div>
-        <div class="bank-balance" id="bank-balance">245 USD</div>
+        <div class="bank-balance" id="bank-balance">{{ account.balance }}USD</div>
 
         <div>
           <div class="progress-wrap">
@@ -565,12 +565,7 @@
           <span>Сегодня загружено: <b id="declarations-count">2</b> шт.</span>
         </div>
 
-        <!-- Task dates (Раздел Last / Раздел 3) -->
-        <div id="task-dates"
-             hx-get="/trading/last-dates/"
-             hx-trigger="every 10s"
-             hx-swap="innerHTML"
-             style="font-size:10px; font-family:var(--mono); color:var(--muted); line-height:1.6;">
+
           <!-- populated by periodic AJAX -->
         </div>
       </div>
