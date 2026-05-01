@@ -1,0 +1,20 @@
+<!-- heder.html -->
+
+
+<header class="header">
+  <div class="logo">My<span>Fruit</span>Shop</div>
+  <div class="auth-form">
+    <input type="text" name="username" placeholder="Username"
+           hx-post="/auth/check-user/"
+           hx-trigger="keyup changed delay:500ms"
+           hx-target="#auth-status">
+    <input type="password" name="password" placeholder="Password">
+    <button class="btn btn-orange"
+            hx-post="/auth/login/"
+            hx-target="#auth-status"
+            hx-include="[name='username'],[name='password']">
+      Login
+    </button>
+    <span id="auth-status"></span>
+  </div>
+</header>

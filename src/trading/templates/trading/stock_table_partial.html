@@ -1,0 +1,46 @@
+<table>
+  <thead>
+    <tr>
+      <th>Название</th>
+      <th>Текущее количество</th>
+      <th>Действия</th>
+      <th>Последняя операция</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in inventory %}
+    <tr>
+      <td>{{ item.get_fruit_display }}</td>
+      <td><span class="qty {% if item.quantity == 0 %}qty-zero{% endif %}">{{ item.quantity }}</span></td>
+      <td>
+        <div class="actions">
+          <input class="qty-input" type="number" placeholder="К-ВО" min="1">
+          <button class="btn btn-green"
+                  hx-post="/stock/buy/"
+                  hx-vals='{"product": "{{ item.fruit }}"}'
+                  hx-include="closest tr .qty-input"
+                  hx-target="#log-list"
+                  hx-swap="afterbegin">Купить</button>
+          <button class="btn btn-sell"
+                  hx-post="/stock/sell/"
+                  hx-vals='{"product": "{{ item.fruit }}"}'
+                  hx-include="closest tr .qty-input"
+                  hx-target="#log-list"
+                  hx-swap="afterbegin">Продать</button>
+        </div>
+      </td>
+      <td>
+        <span class="last-op">
+          {% with last_tx=item.ordertransaction_set.first %}
+            {% if last_tx %}
+              {{ last_tx.created_at|date:"d.m.Y H:i" }} — {{ last_tx.get_transaction_type_display }}
+            {% else %}
+              Операцій немає
+            {% endif %}
+          {% endwith %}
+        </span>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>

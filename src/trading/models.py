@@ -30,6 +30,13 @@ class Inventory(models.Model):
     def __str__(self):
         return f'{self.fruit} - {self.quantity} units'
 
+    def get_last_info(self):
+        # Шукаємо останню успішну транзакцію для цього фрукта
+        from .models import \
+            OrderTransaction  # імпорт всередині, щоб уникнути circular import
+        return OrderTransaction.objects.filter(fruit=self.fruit).order_by(
+            '-created_at').first()
+
 
 class Account(models.Model):
     """
@@ -78,7 +85,8 @@ class OrderTransaction(models.Model):
     quantity = models.IntegerField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
     success = models.BooleanField(default=False)
-    reason = models.CharField(max_length=50, choices=REASON_CHOICES, null=True, blank=True)
+    reason = models.CharField(max_length=50, choices=REASON_CHOICES,
+                              null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -86,4 +94,6 @@ class OrderTransaction(models.Model):
         indexes = [models.Index(fields=['created_at'])]
 
     def __str__(self):
-        return f'{self.transaction_type} {self.fruit} {self.quantity} units at ${self.price}'
+        return (f'{self.transaction_type} {self.fruit} '
+                f'{self.quantity} units at ${self.price}')
+

@@ -18,14 +18,14 @@ FRUIT_CONFIG = {
 }
 
 def send_ws(message: str, balance=None):
-    payload = {'message': message, 'type':'fruit.log'}
+    payload = {'type':'fruit.log','message': message, }
     if balance is not None:
-        payload['balance'] = balance
+        payload['balance'] = str(balance)
     async_to_sync(channel_layer.group_send)('fruit_trading', payload)
 
-def _buy(fruit:str):
+def _buy(fruit:str, manual_qty = None):
     cfg = FRUIT_CONFIG[fruit]
-    qty = random.randint(*cfg[0])
+    qty = int(manual_qty) if manual_qty is not None else random.randint(*cfg[0])
 
     buy_price = Decimal(str(cfg[2]))
     cost = buy_price * qty
@@ -59,10 +59,11 @@ def _buy(fruit:str):
     send_ws(msg, balance=account.balance)
     return msg
 
-def _sell(fruit:str):
+def _sell(fruit:str, manual_qty = None):
     cfg = FRUIT_CONFIG[fruit]
-    qty = random.randint(*cfg[1])
-
+    qty = int(manual_qty) if manual_qty is not None else random.randint(*cfg[1])
+    print (qty)
+    print (manual_qty)
     sell_price= Decimal(str(cfg[3]))
     revenue  = sell_price * qty
 
@@ -104,27 +105,27 @@ def _sell(fruit:str):
 
 # ── Buy tasks ──────────────────────────────────────────
 @shared_task(queue='queue_1')
-def buy_apple():     return _buy('apple')
+def buy_apple(qty=None):     return _buy('apple', manual_qty=qty)
 
 @shared_task(queue='queue_1')
-def buy_banana():    return _buy('banana')
+def buy_banana(qty=None):    return _buy('banana', manual_qty=qty)
 
 @shared_task(queue='queue_1')
-def buy_pineapple(): return _buy('pineapple')
+def buy_pineapple(qty=None): return _buy('pineapple', manual_qty=qty)
 
 @shared_task(queue='queue_1')
-def buy_peach():     return _buy('peach')
+def buy_peach(qty=None):     return _buy('peach', manual_qty=qty)
 
 
 # ── Sell tasks ─────────────────────────────────────────
 @shared_task(queue='queue_1')
-def sell_apple():     return _sell('apple')
+def sell_apple(qty=None):     return _sell('apple', manual_qty=qty)
 
 @shared_task(queue='queue_1')
-def sell_banana():    return _sell('banana')
+def sell_banana(qty=None):    return _sell('banana', manual_qty=qty)
 
 @shared_task(queue='queue_1')
-def sell_pineapple(): return _sell('pineapple')
+def sell_pineapple(qty=None): return _sell('pineapple', manual_qty=qty)
 
 @shared_task(queue='queue_1')
-def sell_peach():     return _sell('peach')
+def sell_peach(qty=None):     return _sell('peach', manual_qty=qty)

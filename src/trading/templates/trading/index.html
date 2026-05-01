@@ -427,23 +427,7 @@
 <body>
 
 <!-- HEADER -->
-<header class="header">
-  <div class="logo">My<span>Fruit</span>Shop</div>
-  <div class="auth-form">
-    <input type="text" placeholder="Username"
-           hx-post="/auth/check-user/"
-           hx-trigger="keyup changed delay:500ms"
-           hx-target="#auth-status">
-    <input type="password" placeholder="Password">
-    <button class="btn btn-orange"
-            hx-post="/auth/login/"
-            hx-target="#auth-status"
-            hx-include="[name='username'],[name='password']">
-      Login
-    </button>
-    <span id="auth-status"></span>
-  </div>
-</header>
+{% include 'includes/header.html' %}
 
 <!-- TOAST CONTAINER -->
 <div class="toast-container" id="toast-container"></div>
@@ -452,126 +436,30 @@
 <div class="layout">
 
   <!-- STOCK TABLE -->
-  <div class="panel stock-panel">
+
+<!- table_fruit.html ->
+
+<div class="panel stock-panel">
     <div class="panel-title">Товары на складе</div>
     <div id="stock-table"
-         hx-get="/stock/"
-         hx-trigger="every 5s"
-         hx-swap="innerHTML">
-      <table>
-        <thead>
-          <tr>
-            <th>Название</th>
-            <th>Текущее количество</th>
-            <th>Действия</th>
-            <th>Последняя операция</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Яблоки -->
-          <tr>
-            <td>Яблоки</td>
-            <td><span class="qty">224</span></td>
-            <td>
-              <div class="actions">
-                <input class="qty-input" type="number" placeholder="К-ВО" min="1">
-                <button class="btn btn-green"
-                        hx-post="/stock/buy/"
-                        hx-vals='{"product": "apples"}'
-                        hx-include="closest tr .qty-input"
-                        hx-target="#log-list"
-                        hx-swap="afterbegin">Купить</button>
-                <button class="btn btn-sell"
-                        hx-post="/stock/sell/"
-                        hx-vals='{"product": "apples"}'
-                        hx-include="closest tr .qty-input"
-                        hx-target="#log-list"
-                        hx-swap="afterbegin">Продать</button>
-              </div>
-            </td>
-            <td><span class="last-op">16.11.2022 10:30 - куплено 5 яблок за 20 usd</span></td>
-          </tr>
-          <!-- Бананы -->
-          <tr>
-            <td>Бананы</td>
-            <td><span class="qty">66</span></td>
-            <td>
-              <div class="actions">
-                <input class="qty-input" type="number" placeholder="К-ВО" min="1">
-                <button class="btn btn-green"
-                        hx-post="/stock/buy/"
-                        hx-vals='{"product": "bananas"}'
-                        hx-include="closest tr .qty-input"
-                        hx-target="#log-list"
-                        hx-swap="afterbegin">Купить</button>
-                <button class="btn btn-sell"
-                        hx-post="/stock/sell/"
-                        hx-vals='{"product": "bananas"}'
-                        hx-include="closest tr .qty-input"
-                        hx-target="#log-list"
-                        hx-swap="afterbegin">Продать</button>
-              </div>
-            </td>
-            <td><span class="last-op">16.11.2022 10:30 - продано 5 бананов за 20 usd</span></td>
-          </tr>
-          <!-- Ананасы -->
-          <tr>
-            <td>Ананасы</td>
-            <td><span class="qty">15</span></td>
-            <td>
-              <div class="actions">
-                <input class="qty-input" type="number" placeholder="К-ВО" min="1">
-                <button class="btn btn-green"
-                        hx-post="/stock/buy/"
-                        hx-vals='{"product": "pineapples"}'
-                        hx-include="closest tr .qty-input"
-                        hx-target="#log-list"
-                        hx-swap="afterbegin">Купить</button>
-                <button class="btn btn-sell"
-                        hx-post="/stock/sell/"
-                        hx-vals='{"product": "pineapples"}'
-                        hx-include="closest tr .qty-input"
-                        hx-target="#log-list"
-                        hx-swap="afterbegin">Продать</button>
-              </div>
-            </td>
-            <td><span class="last-op">16.11.2022 10:30 - куплено 5 ананасов за 20 usd</span></td>
-          </tr>
-          <!-- Персики -->
-          <tr>
-            <td>Персики</td>
-            <td><span class="qty">0</span></td>
-            <td>
-              <div class="actions">
-                <input class="qty-input" type="number" placeholder="К-ВО" min="1">
-                <button class="btn btn-green"
-                        hx-post="/stock/buy/"
-                        hx-vals='{"product": "peaches"}'
-                        hx-include="closest tr .qty-input"
-                        hx-target="#log-list"
-                        hx-swap="afterbegin">Купить</button>
-                <button class="btn btn-sell"
-                        hx-post="/stock/sell/"
-                        hx-vals='{"product": "peaches"}'
-                        hx-include="closest tr .qty-input"
-                        hx-target="#log-list"
-                        hx-swap="afterbegin">Продать</button>
-              </div>
-            </td>
-            <td><span class="last-op">16.11.2022 10:30 - куплено 5 персиков за 20 usd</span></td>
-          </tr>
-        </tbody>
-      </table>
+     hx-get="/trading/stocks/"
+     hx-trigger="every 5s"
+     hx-swap="innerHTML"
+     hx-sync="this:replace"
+     hx-disinherit="*">
+
+
+      {% include 'includes/table_fruit.html' %}
     </div>
 
     <!-- Celery task controls (Раздел 1) -->
     <div class="task-controls">
       <button class="task-btn" id="btn-start-supply"
-              hx-post="/tasks/start-supply/"
+              hx-post="{% url 'toggle_tasks' 'start' %}"
               hx-target="#log-list"
               hx-swap="afterbegin">▶ Запустить поставки</button>
       <button class="task-btn" id="btn-stop-supply"
-              hx-post="/tasks/stop-supply/"
+              hx-post="{% url 'toggle_tasks' 'stop' %}"
               hx-target="#log-list"
               hx-swap="afterbegin">■ Стоп поставки</button>
       <button class="task-btn" id="btn-audit"
@@ -591,16 +479,12 @@
       </div>
     </div>
   </div>
-
   <!-- LOG PANEL (WebSocket target) -->
   <div class="panel log-panel">
     <div class="panel-title">Лог операций</div>
     <div class="log-list" id="log-list">
       <!-- populated via WebSocket / HTMX -->
-      <div class="log-entry log-error">16.11.2022 10:30 — ERROR: Поставщик привёз 4 ананаса. Недостаточно средств на счету, закупка отменена.</div>
-      <div class="log-entry log-success">16.11.2022 10:31 — SUCCESS: Поставщик привёз 5 яблок. Со счёта списано 15 USD, покупка завершена.</div>
-      <div class="log-entry log-error">16.11.2022 10:30 — ERROR: Поставщик привёз 4 ананаса. Недостаточно средств на счету, закупка отменена.</div>
-      <div class="log-entry log-success">16.11.2022 10:31 — SUCCESS: Поставщик привёз 5 яблок. Со счёта списано 15 USD, покупка завершена.</div>
+
     </div>
   </div>
 
@@ -611,7 +495,7 @@
     <div class="panel chat-panel">
       <div class="panel-title">Чат</div>
       <div class="chat-messages" id="chat-messages"
-           hx-ws="connect:/ws/chat/">
+            >
         <!-- last 40 messages loaded on page -->
         <div class="chat-msg"><span class="time">11:25</span><span class="name">Анатолий:</span> Добрый день</div>
         <div class="chat-msg"><span class="time">11:26</span><span class="name">Анна:</span> Слушаю вас</div>
@@ -622,8 +506,7 @@
       <div class="chat-input-row">
         <input type="text" id="chat-input" placeholder="Текст сообщения"
                name="message"
-               hx-ws="send"
-               hx-trigger="keyup[key=='Enter']">
+
         <button class="btn btn-orange"
                 onclick="sendChat()">Отправить</button>
       </div>
@@ -684,7 +567,7 @@
 
         <!-- Task dates (Раздел Last / Раздел 3) -->
         <div id="task-dates"
-             hx-get="/tasks/last-dates/"
+             hx-get="/trading/last-dates/"
              hx-trigger="every 10s"
              hx-swap="innerHTML"
              style="font-size:10px; font-family:var(--mono); color:var(--muted); line-height:1.6;">
@@ -697,7 +580,13 @@
 
 </div><!-- /layout -->
 
+
 <script>
+  document.body.addEventListener('htmx:beforeProcessNode', function(e) {
+    if (!document.body.contains(e.detail.elt)) {
+        e.preventDefault();
+    }
+});
   const logWs = new WebSocket(`ws://${location.host}/ws/fruits/`);
 
   logWs.onmessage = function(e) {
@@ -750,6 +639,10 @@
     if (e.detail.failed) showToast('Помилка: ' + e.detail.xhr.status, 'error');
   });
 </script>
-
+<script>
+    document.body.addEventListener('htmx:configRequest', (event) => {
+        event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
+    });
+</script>
 </body>
 </html>

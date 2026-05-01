@@ -1,3 +1,6 @@
+# management/commands/setup_trading.py
+
+
 from celery.bin.control import status
 from celery.schedules import schedule
 from django.core.management.base import BaseCommand
@@ -35,7 +38,7 @@ class Command(BaseCommand):
                 defaults={
                     'task': item['task'],
                     'interval': schedule,
-                    'queue': 'queue1',
+                    'queue': 'queue_1',
                     "enabled": True,
                 }
             )
