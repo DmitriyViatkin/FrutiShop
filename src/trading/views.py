@@ -1,5 +1,9 @@
 from decimal import Decimal
+from email.policy import default
 from gc import enable
+import os
+from actions.models import Declaration, TaskMeta
+from actions.forms import UploadForm
 from .tasks_balanse import deposit_task, withdraw_task
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.utils import timezone
@@ -15,6 +19,9 @@ from django.views.decorators.http import require_POST
 from .models import OrderTransaction,Account,Inventory
 from django.core.cache import cache
 from .task_inventory_audit import inventory_audit, bank_audit
+from django.core.files.storage import default_storage
+
+
 
 #@login_required
 def trading_dashboard(request):
@@ -205,3 +212,27 @@ def withdraw(request):
 
     withdraw_task.delay(str(amount))
     return HttpResponse("")
+
+@require_POST
+def upload_declaration(request):
+    file = request.FILES.get('declaration')
+
+    if not file:
+        return HttpResponse("Файл не получен")
+
+    allowed_extensions = ['.xlsx', '.xls', '.csv']
+    ext = os.path.splitext(file.name)[1].lower()
+
+    if ext not in allowed_extensions:
+        return HttpResponse("Только Excel или CSV")
+
+    path = default_storage.save(f'declarations/{file.name}', file)
+
+
+    Declaration.objects.create(file=path, uploaded_by=request.user)
+
+    count = Declaration.objects.filter(
+        uploaded_at__date=timezone.now().date()
+    ).count()
+
+    return HttpResponse(str(count))

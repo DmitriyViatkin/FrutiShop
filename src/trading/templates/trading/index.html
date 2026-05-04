@@ -543,21 +543,21 @@
 
         <!-- Declarations (Раздел 6) -->
         <div class="declarations-row">
-          <button class="btn btn-outline" style="font-size:11px;"
-                  hx-post="/declarations/upload/"
-                  hx-encoding="multipart/form-data"
-                  hx-target="#declarations-count"
-                  hx-swap="innerHTML"
-                  onclick="document.getElementById('decl-file').click()">
-            Загрузить декларации
-          </button>
-          <input type="file" id="decl-file" style="display:none"
-                 name="declaration"
-                 hx-post="/declarations/upload/"
-                 hx-encoding="multipart/form-data"
-                 hx-trigger="change"
-                 hx-target="#declarations-count">
-          <span>Сегодня загружено: <b id="declarations-count">2</b> шт.</span>
+          <form id="decl-form"
+                hx-post="{% url 'upload_declaration' %}"
+                hx-encoding="multipart/form-data"
+                hx-target="#declarations-count"
+                hx-swap="innerHTML">
+
+              {% csrf_token %}
+
+              <input type="file"
+                 id="file-input"
+                     name="declaration"
+                 accept=".xlsx,.xls,.csv"
+                 onchange="this.form.requestSubmit()">
+          </form>
+<span>Загружено: <b id="declarations-count">0</b> шт.</span>
         </div>
 
 
@@ -572,7 +572,11 @@
 
 
 <script>
-
+document.body.addEventListener('htmx:afterRequest', function(e) {
+    if (e.detail.target.id === 'declarations-count') {
+        document.getElementById('file-input').value = '';
+    }
+});
   function validateAmount() {
     const val = parseFloat(document.getElementById('amount-input').value);
     if (!val || val <= 0) {
@@ -616,18 +620,18 @@
     if (data.message) {
         const el = document.createElement('div');
         const isError = data.error === true;
-console.log(data);
+
         el.className = 'log-entry ' + (isError ? 'log-error' : 'log-success');
         el.textContent = data.message;
         document.getElementById('log-list').prepend(el);
 
-        // Підсвічуємо банківський блок при помилці
+
         const bankBalance = document.getElementById('bank-balance');
         if (isError) {
             bankBalance.style.color = 'var(--red)';
             bankBalance.style.background = 'var(--red-bg)';
             bankBalance.style.borderColor = 'var(--red)';
-            // Повертаємо нормальний вигляд через 3 секунди
+
             setTimeout(() => {
                 bankBalance.style.color = 'var(--accent)';
                 bankBalance.style.background = 'var(--orange-bg)';

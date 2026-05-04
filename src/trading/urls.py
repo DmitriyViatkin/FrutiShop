@@ -19,6 +19,9 @@ urlpatterns = [
     path('bank/deposit/', views.deposit, name='deposit'),
     path('bank/withdraw/', views.withdraw, name='withdraw'),
 
+    # -----загрузка декларации------
+    path('declaration/upload/', views.upload_declaration, name='upload_declaration'),
+
 
 ]
 
