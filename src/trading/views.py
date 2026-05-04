@@ -8,7 +8,7 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django_celery_beat.models import PeriodicTask,PeriodicTasks
-
+from decimal import Decimal, InvalidOperation
 
 from . import tasks as trading_tasks
 from django.views.decorators.http import require_POST
@@ -181,15 +181,27 @@ def start_audit_bank(request):
 
 @require_POST
 def deposit(request):
-    amount = Decimal(request.POST.get('amount', '0'))
-    account=Account.objects.get(pk=2)
-    deposit_task.delay(amount)
-    return HttpResponse("Операція в обробці" )
+    try:
+        amount = Decimal(request.POST.get('amount', '0'))
+    except InvalidOperation:
+        return HttpResponse("❌ Невалидная сумма", status=400)
+
+    if amount <= 0:
+        return HttpResponse("❌ Сумма должна быть положительной", status=400)
+
+    deposit_task.delay(str(amount))
+    return HttpResponse("Операція в обробці")
+
 
 @require_POST
 def withdraw(request):
-    amount=str(request.POST.get('amount', '0'))
+    try:
+        amount = Decimal(request.POST.get('amount', '0'))
+    except InvalidOperation:
+        return HttpResponse("❌ Невалидная сумма", status=400)
+
+    if amount <= 0:
+        return HttpResponse("❌ Сумма должна быть положительной", status=400)
 
     withdraw_task.delay(str(amount))
-
-    return HttpResponse("" )
+    return HttpResponse("")

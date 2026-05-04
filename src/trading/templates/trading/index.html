@@ -525,13 +525,16 @@
         </button>
 
         <div class="bank-row">
-          <input type="number" id="amount-input" placeholder="сумма" name="amount">
+          <input type="number" id="amount-input" placeholder="сумма" name="amount"
+       min="0.01" step="0.01" required>
           <button class="btn btn-green"
+                  onclick="return validateAmount()"
                   hx-post="{% url 'deposit' %}"
                   hx-include="#amount-input"
                   hx-target="#bank-balance"
                   hx-swap="innerHTML">Пополнить</button>
           <button class="btn btn-sell"
+                  onclick="return validateAmount()"
                   hx-post="{% url 'withdraw' %}"
                   hx-include="#amount-input"
                   hx-target="#bank-balance"
@@ -569,6 +572,15 @@
 
 
 <script>
+
+  function validateAmount() {
+    const val = parseFloat(document.getElementById('amount-input').value);
+    if (!val || val <= 0) {
+        showToast('Введите положительную сумму', 'error');
+        return false;
+    }
+    return true;
+}
   document.body.addEventListener('htmx:beforeProcessNode', function(e) {
     if (!document.body.contains(e.detail.elt)) {
         e.preventDefault();
@@ -603,7 +615,7 @@
     // Обычное лог-сообщение
     if (data.message) {
         const el = document.createElement('div');
-        const isError = data.error === true;  // тільки явний флаг з бекенду
+        const isError = data.error === true;
 console.log(data);
         el.className = 'log-entry ' + (isError ? 'log-error' : 'log-success');
         el.textContent = data.message;
@@ -647,10 +659,18 @@ console.log(data);
 
   function sendChat() {
     const input = document.getElementById('chat-input');
-    if (!input.value.trim()) return;
-    chatWs.send(JSON.stringify({ message: input.value }));
+    const msg = input.value.trim();
+    if (!msg) {
+        showToast('Сообщение не может быть пустым', 'error');
+        return;
+    }
+    if (msg.length > 500) {
+        showToast('Сообщение слишком длинное (макс. 500)', 'error');
+        return;
+    }
+    chatWs.send(JSON.stringify({ message: msg }));
     input.value = '';
-  }
+}
 
   document.getElementById('chat-input').addEventListener('keydown', e => {
     if (e.key === 'Enter') sendChat();
