@@ -53,9 +53,15 @@ class FruitsConsumer(AsyncWebsocketConsumer):
     async def fruit_log(self, event):
         await self.send(text_data=json.dumps({
             "message": event['message'],
-            "balance": event.get('balance')
+            "balance": event.get('balance'),
+            "error": event.get('error', False)
         }))
+    async def audit_progress (self, event):
+        await self.send(text_data=json.dumps({
+            "message": event.get('message',""),
+            "progress" : event['progress'],
 
+        }))
 
 class ChatConsumer(AsyncWebsocketConsumer):
      GROUP = 'chat'

@@ -3,18 +3,39 @@
 
 <header class="header">
   <div class="logo">My<span>Fruit</span>Shop</div>
-  <div class="auth-form">
-    <input type="text" name="username" placeholder="Username"
-           hx-post="/auth/check-user/"
-           hx-trigger="keyup changed delay:500ms"
-           hx-target="#auth-status">
-    <input type="password" name="password" placeholder="Password">
-    <button class="btn btn-orange"
-            hx-post="/auth/login/"
-            hx-target="#auth-status"
-            hx-include="[name='username'],[name='password']">
-      Login
-    </button>
-    <span id="auth-status"></span>
+
+  <div id="auth-section">
+    {% if user.is_authenticated %}
+      <!-- Состояние для залогиненного пользователя -->
+      <div class="auth-form">
+        <span style="font-family: var(--mono); font-size: 13px; color: var(--muted);">
+          <span style="color: var(--green);">●</span> {{ user.username }}
+        </span>
+        <button class="btn btn-outline"
+                hx-post="/auth/logout/"
+                hx-target="#auth-section"
+                style="padding: 4px 10px; font-size: 11px;">
+          Выйти
+        </button>
+      </div>
+    {% else %}
+      <!-- Твоя форма входа -->
+      <div class="auth-form">
+        <input type="text" name="username" placeholder="Username"
+               hx-post="/auth/check-user/"
+               hx-trigger="keyup changed delay:500ms"
+               hx-target="#auth-status">
+
+        <input type="password" name="password" placeholder="Password">
+
+        <button class="btn btn-orange"
+                hx-post="/auth/login/"
+                hx-target="#auth-section"
+                hx-include="[name='username'],[name='password']">
+          Login
+        </button>
+        <span id="auth-status" style="font-family: var(--mono); font-size: 11px;"></span>
+      </div>
+    {% endif %}
   </div>
 </header>

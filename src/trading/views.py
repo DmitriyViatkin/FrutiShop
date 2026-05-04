@@ -1,14 +1,20 @@
+from decimal import Decimal
 from gc import enable
+from .tasks_balanse import deposit_task, withdraw_task
+from django.contrib.auth.base_user import AbstractBaseUser
 from django.utils import timezone
 from celery import current_app
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django_celery_beat.models import PeriodicTask,PeriodicTasks
+
+
 from . import tasks as trading_tasks
 from django.views.decorators.http import require_POST
 from .models import OrderTransaction,Account,Inventory
-
+from django.core.cache import cache
+from .task_inventory_audit import inventory_audit, bank_audit
 
 #@login_required
 def trading_dashboard(request):
@@ -96,7 +102,7 @@ def buy_fruit(request):
 
     current_app.send_task(
         f'trading.tasks.buy_{fruit}',
-        args=[qty_val],  # Передаємо аргумент списком
+        args=[qty_val],
         queue='queue_1'
     )
 
@@ -135,3 +141,55 @@ def sell_fruit(request):
         f'{now} — ⏳ Завдання SELL {fruit.upper()} поставлено у чергу'
         f'</div>'
     )
+
+@require_POST
+def start_audit_inventory(request):
+
+    if not request.user.is_authenticated:
+        return HttpResponse(
+            '<script>showToast("Помилка: Анонімам зась!", "error");</script>',
+            status=200)
+    is_new_lock = cache.add('audit_lock', 'true', 60)
+    if not is_new_lock:
+        # Якщо ключ уже був у кеші, .add() поверне False
+        return HttpResponse(
+            '<script>showToast("Аудит вже в процесі або в черзі!", "info");</script>',
+            status=200
+        )
+
+    inventory_audit.delay(request.user.id)
+    return HttpResponse('<script>showToast("Початок перевірки...", "info");</script>')
+
+@require_POST
+def start_audit_bank(request):
+
+    if not request.user.is_authenticated:
+        return HttpResponse(
+            '<script>showToast("Помилка: Анонімам зась!", "error");</script>',
+            status=200)
+    is_new_lock = cache.add('audit_lock', 'true', 60)
+    if not is_new_lock:
+
+        return HttpResponse(
+            '<script>showToast("Аудит вже в процесі або в черзі!", "info");</script>',
+            status=200
+        )
+
+    bank_audit.delay(request.user.id)
+    return HttpResponse('<script>showToast("Початок банківської перевірки...", "info");</script>')
+
+
+@require_POST
+def deposit(request):
+    amount = Decimal(request.POST.get('amount', '0'))
+    account=Account.objects.get(pk=2)
+    deposit_task.delay(amount)
+    return HttpResponse("Операція в обробці" )
+
+@require_POST
+def withdraw(request):
+    amount=str(request.POST.get('amount', '0'))
+
+    withdraw_task.delay(str(amount))
+
+    return HttpResponse("" )

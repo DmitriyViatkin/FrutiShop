@@ -18,8 +18,12 @@ FRUIT_CONFIG = {
     'peach':     ((5, 15),  (1, 20),     2 ,    3),
 }
 
-def send_ws(message: str, balance=None):
-    payload = {'type':'fruit.log','message': message, }
+def send_ws(message: str, balance=None,error=False):
+    payload = {
+        'type': 'fruit.log',
+        'message': str(message),
+        'error': error,  # ← повертаємо error замість level
+    }
     if balance is not None:
         payload['balance'] = str(balance)
     async_to_sync(channel_layer.group_send)('fruit_trading', payload)
@@ -43,7 +47,7 @@ def _buy(fruit:str, manual_qty = None):
                 transaction_type='BUY', fruit=fruit, quantity=qty,
                 price=buy_price, success= False, reason='insufficient_funds'
             )
-            send_ws(msg, balance=account.balance)
+            send_ws(msg, balance=account.balance, error=True)
             return msg
 
         account.balance -= cost
@@ -64,8 +68,7 @@ def _buy(fruit:str, manual_qty = None):
 def _sell(fruit:str, manual_qty = None):
     cfg = FRUIT_CONFIG[fruit]
     qty = int(manual_qty) if manual_qty is not None else random.randint(*cfg[1])
-    print (qty)
-    print (manual_qty)
+
     sell_price= Decimal(str(cfg[3]))
     revenue  = sell_price * qty
 
@@ -87,7 +90,7 @@ def _sell(fruit:str, manual_qty = None):
                 transaction_type='SELL', fruit=fruit, quantity=qty,
                 price=sell_price, success=False, reason='not_enough_goods'
             )
-            send_ws(msg)
+            send_ws(msg, error=True)
             return msg
         inventory.quantity -= qty
         inventory.save()

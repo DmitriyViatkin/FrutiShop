@@ -463,21 +463,13 @@
               hx-target="#log-list"
               hx-swap="afterbegin">■ Стоп поставки</button>
       <button class="task-btn" id="btn-audit"
-              hx-post="/tasks/audit/"
+              hx-post="{% url 'run_inventory_audit' %}"
               hx-target="#audit-result">🔍 Проверка склада</button>
       <span id="audit-result" style="font-size:11px; font-family: var(--mono); color: var(--muted);"></span>
     </div>
 
     <!-- Audit progress bar (Раздел 7) -->
-    <div class="audit-progress" id="audit-progress" style="padding: 0 12px 10px;">
-      <div style="font-size:11px; color:var(--muted); font-family:var(--mono); margin-bottom:4px;">
-        Бухг. аудит: <span id="audit-pct">0%</span>
-      </div>
-      <div class="progress-wrap">
-        <div class="progress-bar" id="audit-bar" style="width:0%"></div>
-        <div class="progress-label" id="audit-bar-label">0%</div>
-      </div>
-    </div>
+
   </div>
   <!-- LOG PANEL (WebSocket target) -->
   <div class="panel log-panel">
@@ -505,7 +497,7 @@
       </div>
       <div class="chat-input-row">
         <input type="text" id="chat-input" placeholder="Текст сообщения"
-               name="message"
+               name="message">
 
         <button class="btn btn-orange"
                 onclick="sendChat()">Отправить</button>
@@ -521,13 +513,13 @@
 
         <div>
           <div class="progress-wrap">
-            <div class="progress-bar" id="bank-progress" style="width:75%"></div>
-            <div class="progress-label">75%</div>
+            <div class="progress-bar" id="bank-progress" style="width:0%"></div>
+            <div class="progress-label" id="bank-progress-label">0%</div>
           </div>
         </div>
 
         <button class="btn btn-blue" style="width:100%"
-                hx-post="/tasks/accounting-audit/"
+                hx-post="{% url 'run_bank_audit' %}"
                 hx-target="#audit-result">
           Провести бухгалтерский аудит
         </button>
@@ -535,12 +527,12 @@
         <div class="bank-row">
           <input type="number" id="amount-input" placeholder="сумма" name="amount">
           <button class="btn btn-green"
-                  hx-post="/bank/deposit/"
+                  hx-post="{% url 'deposit' %}"
                   hx-include="#amount-input"
                   hx-target="#bank-balance"
                   hx-swap="innerHTML">Пополнить</button>
           <button class="btn btn-sell"
-                  hx-post="/bank/withdraw/"
+                  hx-post="{% url 'withdraw' %}"
                   hx-include="#amount-input"
                   hx-target="#bank-balance"
                   hx-swap="innerHTML">Вывести</button>
@@ -587,17 +579,60 @@
   logWs.onmessage = function(e) {
     const data = JSON.parse(e.data);
 
-    const el = document.createElement('div');
-    const isError = data.message && data.message.includes('❌');
-    el.className = 'log-entry ' + (isError ? 'log-error' : 'log-success');
-    el.textContent = data.message;
-    document.getElementById('log-list').prepend(el);
+    // Прогресс аудита
+    if (data.progress !== undefined) {
+        const progressValue = data.progress;
+        const auditBar = document.getElementById('bank-progress');
+        const auditLabel = document.getElementById('bank-progress-label');
+        const auditWrapper = document.getElementById('audit-progress');
 
-    if (data.balance !== null && data.balance !== undefined) {
-      document.getElementById('bank-balance').textContent = data.balance + ' USD';
+        if (auditWrapper) auditWrapper.classList.add('active');
+        if (auditBar) auditBar.style.width = progressValue + '%';
+        if (auditLabel) auditLabel.textContent = progressValue + '%';
+
+        if (progressValue >= 100) {
+            setTimeout(() => {
+                if (auditBar) auditBar.style.width = '0%';
+                if (auditLabel) auditLabel.textContent = '0%';
+                if (auditWrapper) auditWrapper.classList.remove('active');
+            }, 2000);
+        }
+        return; // не добавляем в лог
     }
-  };
 
+    // Обычное лог-сообщение
+    if (data.message) {
+        const el = document.createElement('div');
+        const isError = data.error === true;  // тільки явний флаг з бекенду
+console.log(data);
+        el.className = 'log-entry ' + (isError ? 'log-error' : 'log-success');
+        el.textContent = data.message;
+        document.getElementById('log-list').prepend(el);
+
+        // Підсвічуємо банківський блок при помилці
+        const bankBalance = document.getElementById('bank-balance');
+        if (isError) {
+            bankBalance.style.color = 'var(--red)';
+            bankBalance.style.background = 'var(--red-bg)';
+            bankBalance.style.borderColor = 'var(--red)';
+            // Повертаємо нормальний вигляд через 3 секунди
+            setTimeout(() => {
+                bankBalance.style.color = 'var(--accent)';
+                bankBalance.style.background = 'var(--orange-bg)';
+                bankBalance.style.borderColor = 'var(--border)';
+            }, 3000);
+        }
+
+        // Toast для помилок
+        if (isError) {
+            showToast(data.message, 'error');
+        }
+    }
+
+    if (data.balance != null) {
+        document.getElementById('bank-balance').textContent = data.balance + ' USD';
+    }
+};
   const chatWs = new WebSocket(`ws://${location.host}/ws/chat/`);
 
   chatWs.onmessage = function(e) {
