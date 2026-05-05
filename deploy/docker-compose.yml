@@ -2,7 +2,7 @@ services:
   db:
     image: postgres:16-alpine
     restart: unless-stopped
-    env_file: ../.env.dep
+    env_file: ../.env
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -23,7 +23,7 @@ services:
       context: ..
       dockerfile: deploy/Dockerfile
     restart: unless-stopped
-    env_file: ../.env.dep
+    env_file: ../.env
     command:
       - sh
       - -c
@@ -50,7 +50,7 @@ services:
       context: ..
       dockerfile: deploy/Dockerfile
     restart: unless-stopped
-    env_file: ../.env.dep
+    env_file: ../.env
     command: celery -A config worker -Q queue_1 --concurrency=1 -l info
     depends_on:
       db:
@@ -63,7 +63,7 @@ services:
       context: ..
       dockerfile: deploy/Dockerfile
     restart: unless-stopped
-    env_file: ../.env.dep
+    env_file: ../.env
     command: celery -A config worker -Q audit_queue --concurrency=1 -l info
     depends_on:
       db:
@@ -76,7 +76,7 @@ services:
       context: ..
       dockerfile: deploy/Dockerfile
     restart: unless-stopped
-    env_file: ../.env.dep
+    env_file: ../.env
     command: celery -A config worker -Q joke_queue --concurrency=1 -l info
     depends_on:
       db:
@@ -89,7 +89,7 @@ services:
       context: ..
       dockerfile: deploy/Dockerfile
     restart: unless-stopped
-    env_file: ../.env.dep
+    env_file: ../.env
     command: celery -A config beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
     depends_on:
       db:
