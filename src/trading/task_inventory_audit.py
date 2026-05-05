@@ -14,7 +14,7 @@ def inventory_audit(self, user_id):
 
     lock_key = "audit_lock"
 
-    if not cache.add ( lock_key, 'true', 60):
+    if not cache.add ( lock_key, 'true', 6):
         return {"status":"already_running", "user_id": user_id }
 
     try:
@@ -35,8 +35,7 @@ def bank_audit(self, user_id):
     lock_key = "audit_lock"
 
 
-    if not cache.add ( lock_key, 'true', 60):
-        return {"status":"already_running", "user_id": user_id }
+
     channel_layer= get_channel_layer()
 
     def send_progress(progress, message=''):
@@ -65,6 +64,15 @@ def bank_audit(self, user_id):
 
         return {"status": "completed", "user_id": user_id}
 
+
     finally:
+
         current_app.control.add_consumer("queue_1")
         cache.delete(lock_key)
+        async_to_sync(channel_layer.group_send)('fruit_trading', {
+
+            'type': 'audit_done',
+            'user_id': user_id,
+            'message': 'Бухгалтерський аудит завершено ✅'
+
+        })

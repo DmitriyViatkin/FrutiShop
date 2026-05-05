@@ -1,5 +1,5 @@
 from django.contrib.auth import authenticate, login, logout
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.views.decorators.http import require_POST
 from django.contrib.auth.models import User
@@ -54,4 +54,4 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     # Возвращаем пустую форму входа (лучше вынести в отдельный шаблон header_auth.html)
-    return render(request, 'includes/header_auth_form.html')
+    return redirect('/')

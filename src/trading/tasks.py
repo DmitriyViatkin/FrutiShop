@@ -65,26 +65,30 @@ def _buy(fruit:str, manual_qty = None):
     send_ws(msg, balance=account.balance)
     return msg
 
-def _sell(fruit:str, manual_qty = None):
+def _sell(fruit: str, manual_qty=None):
     cfg = FRUIT_CONFIG[fruit]
     qty = int(manual_qty) if manual_qty is not None else random.randint(*cfg[1])
-
-    sell_price= Decimal(str(cfg[3]))
-    revenue  = sell_price * qty
-
+    sell_price = Decimal(str(cfg[3]))
+    revenue = sell_price * qty
+    now = timezone.now().strftime("%H:%M")
 
     logger.info(f"SELL attempt: {fruit.upper()} x{qty} @ ${sell_price} = ${revenue}")
+
     with transaction.atomic():
-        try:
+        # Ищем инвентарь сразу с блокировкой строки
+        inventory = Inventory.objects.filter(fruit=fruit).select_for_update().first()
 
-            inventory = Inventory.objects.select_for_update().get(fruit=fruit)
+        # Проверка 1: существует ли запись об инвентаре вообще
+        if not inventory:
+            msg = f"{now} - SELL {fruit.upper()} failed: No inventory record"
+            logger.error(msg)
+            send_ws(msg, error=True)
+            return msg
 
-        except Inventory.DoesNotExist:
-            inventory = None
-
+        # Проверка 2: хватает ли товара
         if inventory.quantity < qty:
-            msg = (f" SELL {fruit.upper()} x{qty} "
-                   f"— недостатньо товара (потрібно {qty}, есть {inventory.quantity})")
+            msg = (f"{now} - SELL {fruit.upper()} x{qty} "
+                   f"| Недостаточно товара (нужно {qty}, есть {inventory.quantity})")
             logger.warning(msg)
             OrderTransaction.objects.create(
                 transaction_type='SELL', fruit=fruit, quantity=qty,
@@ -92,13 +96,24 @@ def _sell(fruit:str, manual_qty = None):
             )
             send_ws(msg, error=True)
             return msg
+
+        # Процесс продажи
         inventory.quantity -= qty
         inventory.save()
-        account = Account.objects.select_for_update().get(pk=2)
-        account.balance += revenue
-        account.save()
 
-    msg = f"SELL {fruit.upper()} x{qty} @ ${sell_price} = ${revenue} | баланс: ${account.balance}"
+        # Получаем аккаунт (помним про pk=2 из вашего конфига)
+        try:
+            account = Account.objects.select_for_update().get(pk=2)
+            account.balance += revenue
+            account.save()
+        except Account.DoesNotExist:
+            msg = f"{now} - SELL {fruit.upper()} failed: Account PK=2 not found"
+            logger.critical(msg)
+            send_ws(msg, error=True)
+            return msg
+
+    # Успешный результат
+    msg = f"{now} - SELL {fruit.upper()} x{qty} @ ${sell_price} = ${revenue} | Баланс: ${account.balance}"
     logger.info(msg)
     OrderTransaction.objects.create(
         transaction_type='SELL', fruit=fruit, quantity=qty,
