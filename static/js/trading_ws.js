@@ -36,11 +36,14 @@ function showToast(msg, type = 'info') {
     setTimeout(() => toast.remove(), 4000);
 }
 
+// ── WebSocket protocol helper ──────────────────────────
+const wsProto = location.protocol === 'https:' ? 'wss' : 'ws';
+
 // ── Fruits WebSocket ───────────────────────────────────
 let logWs;
 
 function connectLog() {
-    logWs = new WebSocket(`ws://${location.host}/ws/fruits/`);
+    logWs = new WebSocket(`${wsProto}://${location.host}/ws/fruits/`);
 
     logWs.onmessage = function(e) {
         const data = JSON.parse(e.data);
@@ -113,7 +116,7 @@ connectLog();
 let chatWs;
 
 function connectChat() {
-    chatWs = new WebSocket(`ws://${location.host}/ws/chat/`);
+    chatWs = new WebSocket(`${wsProto}://${location.host}/ws/chat/`);
 
     chatWs.onmessage = function(e) {
         const data = JSON.parse(e.data);
