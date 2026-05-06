@@ -23,7 +23,7 @@ from django.core.files.storage import default_storage
 
 
 
-@login_required
+
 def trading_dashboard(request):
     """
     Renders the main trading interface.
