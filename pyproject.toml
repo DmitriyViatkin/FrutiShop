@@ -1,29 +1,28 @@
-[project]
+[tool.poetry]
 name = "frutishop"
 version = "0.0.1"
 description = "Shop Fruit"
+authors = ["Dmitriy <ViatkinDima@gmail.com>"]
 package-mode = false
-authors = [
-    {name = "Dmitriy",email = "ViatkinDima@gmail.com"}
-]
-python = ">=3.12,<4.0"
-dependencies = [
-    "django (>=5.0.1,<6.0.0)",
-    "celery (>=5.6.3,<6.0.0)",
-    "redis (>=7.4.0,<8.0.0)",
-    "django-ninja (>=1.6.2,<2.0.0)",
-    "channels (>=4.3.2,<5.0.0)",
-    "channels-redis (>=4.3.0,<5.0.0)",
-    "django-celery-beat (>=2.9.0,<3.0.0)",
-    "env (>=0.1.0,<0.2.0)",
-    "python-dotenv (>=1.2.2,<2.0.0)",
-    "psycopg[binary] (>=3.3.3,<4.0.0)",
-    "uvicorn (>=0.46.0,<0.47.0)",
-    "websockets (>=16.0,<17.0)",
-    "requests (>=2.28.0,<3.0.0)",
-    "daphne (>=4.2.1,<5.0.0)"
-]
 
+
+[tool.poetry.dependencies]
+python = ">=3.12,<4.0"
+
+django = ">=5.0.1,<6.0.0"
+celery = ">=5.6.3,<6.0.0"
+redis = ">=7.4.0,<8.0.0"
+django-ninja = ">=1.6.2,<2.0.0"
+channels = ">=4.3.2,<5.0.0"
+channels-redis = ">=4.3.0,<5.0.0"
+django-celery-beat = ">=2.9.0,<3.0.0"
+env = ">=0.1.0,<0.2.0"
+python-dotenv = ">=1.2.2,<2.0.0"
+psycopg = {extras = ["binary"], version = ">=3.3.3,<4.0.0"}
+uvicorn = ">=0.46.0,<0.47.0"
+websockets = ">=16.0,<17.0"
+requests = ">=2.28.0,<3.0.0"
+daphne = ">=4.2.1,<5.0.0"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
