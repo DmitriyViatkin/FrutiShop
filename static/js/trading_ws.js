@@ -1,3 +1,5 @@
+const BUILD_VERSION = "v2026.05.06-1";
+console.log("WS FILE:", BUILD_VERSION);
 // HTMX helpers
 document.body.addEventListener('htmx:afterRequest', function(e) {
     if (e.detail.target && e.detail.target.id === 'declarations-count') {
