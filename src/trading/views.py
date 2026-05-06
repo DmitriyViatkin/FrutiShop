@@ -23,7 +23,7 @@ from django.core.files.storage import default_storage
 
 
 
-#@login_required
+@login_required
 def trading_dashboard(request):
     """
     Renders the main trading interface.
@@ -59,6 +59,7 @@ def stock_list(request):
     return render(request, 'includes/table_fruit.html', context)
 
 # Керування періодичними завданнями
+@login_required
 def toggle_supply_tasks(request, action):
     """
     Toggles the state of periodic supply tasks.
@@ -75,7 +76,7 @@ def toggle_supply_tasks(request, action):
     now = timezone.now().strftime("%Y-%m-%d %H:%M:%S")
     return  HttpResponse(
         f'<div class="log-entry log-success">{now} - Система: Торгівлю {status_msg}</div>')
-
+@login_required
 def last_task_dates(request):
     """
     Returns the last execution dates of buy/sell tasks.
@@ -90,7 +91,7 @@ def last_task_dates(request):
     )
     return HttpResponse(lines)
 
-
+@login_required
 @require_POST
 def buy_fruit(request):
     fruit = request.POST.get('fruit', '').lower().strip()
@@ -118,7 +119,7 @@ def buy_fruit(request):
 
 
 
-
+@login_required
 @require_POST
 def sell_fruit(request):
     """
@@ -149,6 +150,7 @@ def sell_fruit(request):
         f'</div>'
     )
 
+@login_required
 @require_POST
 def start_audit_inventory(request):
 
@@ -167,6 +169,8 @@ def start_audit_inventory(request):
     inventory_audit.delay(request.user.id)
     return HttpResponse('<script>showToast("Початок перевірки...", "info");</script>')
 
+
+@login_required
 @require_POST
 def start_audit_bank(request):
 
@@ -185,7 +189,7 @@ def start_audit_bank(request):
     bank_audit.delay(request.user.id)
     return HttpResponse('<script>showToast("Початок банківської перевірки...", "info");</script>')
 
-
+@login_required
 @require_POST
 def deposit(request):
     try:
@@ -199,7 +203,7 @@ def deposit(request):
     deposit_task.delay(str(amount))
     return HttpResponse("Операція в обробці")
 
-
+@login_required
 @require_POST
 def withdraw(request):
     try:
@@ -211,8 +215,10 @@ def withdraw(request):
         return HttpResponse("❌ Сумма должна быть положительной", status=400)
 
     withdraw_task.delay(str(amount))
+
     return HttpResponse("")
 
+@login_required
 @require_POST
 def upload_declaration(request):
     file = request.FILES.get('declaration')
