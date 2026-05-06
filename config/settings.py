@@ -116,7 +116,9 @@ DATABASES = {
         'PORT': os.getenv('POSTGRES_PORT', '5432'),
     }
 }
-
+CSRF_TRUSTED_ORIGINS = [
+    'https://fruti-shop-nginx.fwwkl2.easypanel.host',
+]
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
