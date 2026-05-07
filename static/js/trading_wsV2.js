@@ -31,6 +31,12 @@ function validateAmount() {
     return true;
 }
 
+document.addEventListener('htmx:beforeSwap', function(e) {
+    // Сохраняем значения всех инпутов перед свопом
+    document.querySelectorAll('input[id^="qty-"]').forEach(function(input) {
+      input.setAttribute('value', input.value);
+    });
+  });
 
 // Toast
 function showToast(msg, type = 'info') {
