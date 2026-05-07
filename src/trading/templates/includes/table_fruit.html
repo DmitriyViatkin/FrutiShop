@@ -11,39 +11,41 @@
 
           <!--  Фрукт  -->
           {% for item in inventory %}
-          <tr>
+          <tr id="row-{{ item.fruit }}">
             <td>{{ item.fruit }}</td>
             <td><span class="qty">{{ item.quantity }}</span></td>
                   <td>
                       <div class="actions" style="display: flex; gap: 10px; align-items: center;">
-    <!-- Поле для введення кількості -->
-    <input type="number"
-           name="quantity"
-           id="qty-{{ item.fruit }}"
-           value="1"
-           min="1"
-           style="width: 60px; padding: 5px; border-radius: 4px; border: 1px solid #ccc;">
+                                <!-- Поле для введення кількості -->
+                                <input type="number"
+                                       name="quantity"
+                                       id="qty-{{ item.fruit }}"
+                                       value="1"
+                                       min="1"
 
-                              <!-- Кнопка Купити -->
-                              <button class="btn btn-green"
-                                      hx-post="{% url 'buy_fruit' %}"
-                                      hx-vals='{"fruit": "{{ item.fruit }}"}'
-                                      hx-include="#qty-{{ item.fruit }}"
-                                      hx-target="#log-list"
-                                      hx-swap="afterbegin">
-                                  Купити
-                              </button>
+                                       style="width: 60px; padding: 5px; border-radius: 4px; border: 1px solid #ccc;"
+                                       >
 
-                              <!-- Кнопка Продати -->
-                              <button class="btn btn-sell"
-                                      hx-post="{% url 'sell_fruit' %}"
-                                      hx-vals='{"fruit": "{{ item.fruit }}"}'
-                                      hx-include="#qty-{{ item.fruit }}"
-                                      hx-target="#log-list"
-                                      hx-swap="afterbegin">
-                                  Продати
-                              </button>
-                          </div>
+                                                          <!-- Кнопка Купити -->
+                                                          <button class="btn btn-green"
+                                                                  hx-post="{% url 'buy_fruit' %}"
+                                                                  hx-vals='{"fruit": "{{ item.fruit }}"}'
+                                                                  hx-include="#qty-{{ item.fruit }}"
+                                                                  hx-target="#log-list"
+                                                                  hx-swap="afterbegin">
+                                                              Купити
+                                                          </button>
+
+                                                          <!-- Кнопка Продати -->
+                                                          <button class="btn btn-sell"
+                                                                  hx-post="{% url 'sell_fruit' %}"
+                                                                  hx-vals='{"fruit": "{{ item.fruit }}"}'
+                                                                  hx-include="#qty-{{ item.fruit }}"
+                                                                  hx-target="#log-list"
+                                                                  hx-swap="afterbegin">
+                                                              Продати
+                                                          </button>
+                      </div>
                     </td>
 
             <td>

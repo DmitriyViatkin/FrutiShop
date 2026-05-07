@@ -8,7 +8,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MyFruitShop</title>
   <link rel="stylesheet" href="{% static 'css/trading.css' %}">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/htmx/1.9.10/htmx.min.js"></script>
+ <script src="{% static 'js/htmx.min.js' %}"></script>
+<script src="{% static 'js/idiomorph-ext.min.js' %}"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 
@@ -31,11 +32,12 @@
 <div class="panel stock-panel">
     <div class="panel-title">Товары на складе</div>
     <div id="stock-table"
-     hx-get="/trading/stocks/"
-     hx-trigger="every 5s"
-     hx-swap="innerHTML"
-     hx-sync="this:replace"
-     hx-disinherit="*">
+         hx-ext="morph"
+         hx-get="/trading/stocks/"
+         hx-trigger="every 5s"
+         hx-swap="morph:innerHTML"
+         hx-sync="this:replace"
+         hx-disinherit="*">
 
 
       {% include 'includes/table_fruit.html' %}
