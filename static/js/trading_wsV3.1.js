@@ -1,4 +1,4 @@
-const BUILD_VERSION = "v2026.05.07-1";
+const BUILD_VERSION = "v2026.05.07-2";
 console.log("WS FILE:", BUILD_VERSION);
 
 console.log("🔥 FILE EDIT TEST 123");
@@ -32,11 +32,23 @@ function validateAmount() {
 }
 
 document.addEventListener('htmx:beforeSwap', function(e) {
-    // Сохраняем значения всех инпутов перед свопом
+    // Сохраняем текущие значения в Map
+    window._savedQty = {};
     document.querySelectorAll('input[id^="qty-"]').forEach(function(input) {
-      input.setAttribute('value', input.value);
+        window._savedQty[input.id] = input.value;
     });
-  });
+});
+
+document.addEventListener('htmx:afterSwap', function(e) {
+    // Восстанавливаем значения после свопа
+    if (!window._savedQty) return;
+    document.querySelectorAll('input[id^="qty-"]').forEach(function(input) {
+        if (window._savedQty[input.id] !== undefined) {
+            input.value = window._savedQty[input.id];
+        }
+    });
+    window._savedQty = null;
+});
 
 // Toast
 function showToast(msg, type = 'info') {
