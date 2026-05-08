@@ -25,5 +25,5 @@ urlpatterns = [
     path('accounts/', include('django.contrib.auth.urls')),
     path('auth/', include('authorization.urls')),
 
-    path('/', include('trading.urls')),
+    path('', include('trading.urls')),
 ]+ static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS[0])
