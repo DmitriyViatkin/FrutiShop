@@ -52,4 +52,4 @@ docker-compose up --build
 
 ## 📌 Статус
 
-Навчальний проєкт, реалізований у рамках курсу Python Developer (Avada Media / Space Lab).
+Навчальний проєкт, реалізований у рамках курсу Python Developer ( Space Lab).
