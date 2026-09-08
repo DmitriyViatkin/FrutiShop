@@ -36,7 +36,7 @@
 - **База даних:** PostgreSQL
 - **Frontend:** AJAX, periodic polling, Toastr-сповіщення
 - **Інфраструктура:** Docker
-
+- Деплой на сервер через Easypanel
 ## 🚀 Запуск проєкту
 
 ```bash
